@@ -1,7 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::instruction::Instruction;
 use anchor_lang::solana_program::program::invoke_signed;
-use std::mem;
 
 declare_id!("4siqjXoP8nDQstGbDT2FNHLWTYpJtBwMnKb7gqaEwgNJ");
 
@@ -378,10 +377,12 @@ pub mod guardian_gate {
 
         // Verify recovery is in progress
         let wallet_config = &mut ctx.accounts.wallet_config;
+        // Clone the recovery state to avoid an immutable borrow across a later mutable update
         let recovery_state = wallet_config
             .recovery_state
             .as_ref()
-            .ok_or(GuardianGateError::NoActiveRecovery)?;
+            .ok_or(GuardianGateError::NoActiveRecovery)?
+            .clone();
 
         // Check recovery hasn't expired
         let clock = Clock::get()?;
@@ -422,6 +423,9 @@ pub struct InitializeWallet<'info> {
     pub wallet_config: Account<'info, WalletConfig>,
 
     /// Vault PDA that will hold the user's funds
+    /// CHECK: The vault is a PDA derived from `VAULT_SEED` and the owner's pubkey and is expected to be a system account
+    /// that holds user funds. We only need the raw `AccountInfo` here because the program enforces PDA derivation
+    /// and signs for the PDA with `invoke_signed` when executing from the vault.
     #[account(
         seeds = [VAULT_SEED, owner.key().as_ref()],
         bump
