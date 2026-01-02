@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import React from "react";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "GuardianGate - Solana Account Recovery",
@@ -12,10 +13,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body style={{ fontFamily: "system-ui, -apple-system, sans-serif", margin: 0, padding: 0 }}>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
 }
+
