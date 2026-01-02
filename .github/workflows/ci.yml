@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install NPM deps
+        run: npm ci
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Add Rust components
+        run: |
+          rustup component add clippy
+          rustup component add rustfmt
+
+      - name: Install Anchor CLI
+        run: npm install -g @coral-xyz/anchor-cli
+
+      - name: Install Solana CLI
+        run: |
+          curl -sSfL https://release.solana.com/v1.18.16/install | sh
+          echo "::add-path::${HOME}/.local/share/solana/install/active_release/bin"
+
+      - name: Cargo fmt check
+        run: cargo fmt -- --check
+
+      - name: Cargo clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Anchor build
+        run: anchor build
+
+      - name: Start Solana test validator
+        run: |
+          solana-test-validator --reset --quiet &
+          sleep 3
+
+      - name: Run Anchor tests
+        run: anchor test -- -Z unstable-options --nocapture
+
+      - name: Run TypeScript lint
+        run: npm run lint
