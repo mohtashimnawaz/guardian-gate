@@ -21,9 +21,9 @@ custom-panic = []
 
 
 [dependencies]
-anchor-lang = "0.32.1"
-anchor-spl = "0.32.1"
-solana-program = "1.18"
+anchor-lang = "0.32.1"  # Use `anchor_lang::solana_program` instead of adding `solana-program` directly
+# Note: Removed `anchor-spl` and `solana-program` to avoid solana-instruction version conflicts
+
 
 
 [lints.rust]

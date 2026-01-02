@@ -322,10 +322,12 @@ pub mod guardian_gate {
     /// - Updates owner to the proposed owner
     pub fn finalize_recovery(ctx: Context<FinalizeRecovery>) -> Result<()> {
         let wallet_config = &mut ctx.accounts.wallet_config;
+        // Clone the recovery state to avoid holding an immutable borrow while we mutate `wallet_config` later
         let recovery_state = wallet_config
             .recovery_state
             .as_ref()
-            .ok_or(GuardianGateError::NoActiveRecovery)?;
+            .ok_or(GuardianGateError::NoActiveRecovery)?
+            .clone();
 
         let clock = Clock::get()?;
 
