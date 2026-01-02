@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import React from "react";
 import { Providers } from "./providers";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "GuardianGate - Solana Account Recovery",
@@ -14,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body style={{ fontFamily: "system-ui, -apple-system, sans-serif", margin: 0, padding: 0 }}>
+      <body className="bg-slate-950 text-foreground">
         <Providers>{children}</Providers>
       </body>
     </html>
