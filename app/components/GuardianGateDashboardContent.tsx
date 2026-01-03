@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Plus, Trash2, Lock, Users, CheckCircle2, AlertCircle } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
 
 export default function GuardianGateDashboardContent() {
   const { publicKey, connected } = useWallet();
@@ -18,18 +19,18 @@ export default function GuardianGateDashboardContent() {
     newGuardianAddress: "",
   });
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const toast = useToast();
 
   const handleAddGuardian = () => {
     if (!formState.newGuardianAddress.trim()) {
-      setMessage({ type: "error", text: "Please enter a guardian address" });
+      toast.push({ type: "error", description: "Please enter a guardian address" });
       return;
     }
 
     try {
       new PublicKey(formState.newGuardianAddress);
       if (formState.guardians.includes(formState.newGuardianAddress)) {
-        setMessage({ type: "error", text: "Guardian already added" });
+        toast.push({ type: "error", description: "Guardian already added" });
         return;
       }
       setFormState((prev) => ({
@@ -37,7 +38,7 @@ export default function GuardianGateDashboardContent() {
         guardians: [...prev.guardians, formState.newGuardianAddress],
         newGuardianAddress: "",
       }));
-      setMessage(null);
+      toast.push({ type: "success", description: "Guardian added" });
     } catch {
       setMessage({ type: "error", text: "Invalid Solana address" });
     }
@@ -52,22 +53,22 @@ export default function GuardianGateDashboardContent() {
 
   const handleInitializeWallet = async () => {
     if (!publicKey) {
-      setMessage({ type: "error", text: "Wallet not connected" });
+      toast.push({ type: "error", description: "Wallet not connected" });
       return;
     }
     if (formState.guardians.length === 0) {
-      setMessage({ type: "error", text: "Add at least one guardian" });
+      toast.push({ type: "error", description: "Add at least one guardian" });
       return;
     }
     if (formState.threshold > formState.guardians.length) {
-      setMessage({ type: "error", text: "Recovery threshold cannot exceed guardian count" });
+      toast.push({ type: "error", description: "Recovery threshold cannot exceed guardian count" });
       return;
     }
 
     setLoading(true);
-    setMessage({ type: "success", text: "Transaction ready - signing..." });
+    toast.push({ type: "success", description: "Transaction ready - signing..." });
     setTimeout(() => {
-      setMessage({ type: "success", text: "Wallet initialized successfully!" });
+      toast.push({ type: "success", description: "Wallet initialized successfully!" });
       setLoading(false);
     }, 2000);
   };
