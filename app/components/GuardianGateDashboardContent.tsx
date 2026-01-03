@@ -119,216 +119,252 @@ export default function GuardianGateDashboardContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
+    <div className="min-h-screen bg-background p-6 md:p-12">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-12">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary rounded-lg">
-                <Shield className="w-8 h-8 text-primary-foreground" aria-hidden="true" />
+        {/* Hero Header */}
+        <div className="relative mb-16">
+          <div className="hero-shapes"></div>
+          <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-tr from-primary/8 to-secondary/8 p-8 md:p-12 bg-page-gradient">
+            <div className="flex items-start justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <div className="transform-gpu will-change-transform transition-transform duration-300 hover:scale-105 hover:-translate-y-1 flex items-center justify-center w-20 h-20 rounded-xl bg-gradient-to-br from-primary to-secondary text-white shadow-lg">
+                  <Shield className="w-8 h-8" aria-hidden="true" />
+                </div>
+                <div>
+                  <h1 className="text-4xl md:text-5xl font-extrabold text-foreground leading-tight">GuardianGate</h1>
+                  <p className="mt-1 text-muted-foreground max-w-xl">A modern, secure multi-signature recovery system for your Solana wallet — set guardians, choose a threshold, and recover access safely.</p>
+                  <div className="mt-4 flex items-center gap-3">
+                    <WalletMultiButton className="!px-5 !py-2" />
+                    <ThemeToggle />
+                  </div>
+                </div>
               </div>
-              <div>
-                <h1 className="text-4xl md:text-5xl font-bold text-foreground">GuardianGate</h1>
-                <p className="text-muted-foreground">Multi-signature wallet recovery system</p>
+
+              <div className="hidden md:flex flex-col items-end text-right">
+                <div className="text-sm text-muted-foreground">Status</div>
+                {connected && publicKey ? (
+                  <div className="mt-2 flex items-center gap-2 text-green-600 dark:text-green-400">
+                    <CheckCircle2 className="w-5 h-5" />
+                    <div className="text-sm font-medium">Connected</div>
+                  </div>
+                ) : (
+                  <div className="mt-2 flex items-center gap-2 text-yellow-600 dark:text-yellow-500">
+                    <AlertCircle className="w-5 h-5" />
+                    <div className="text-sm">Not connected</div>
+                  </div>
+                )}
+                <div className="mt-3 p-3 bg-muted rounded-lg border border-border">
+                  <div className="text-xs text-muted-foreground">Address</div>
+                  <div className="font-mono text-sm text-foreground break-all max-w-xs truncate">{publicKey?.toBase58() ?? '—'}</div>
+                </div>
               </div>
             </div>
-            <div>
-              <ThemeToggle />
+          </div>
+
+          {/* floating stats cards */}
+          <div className="-mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 z-20">
+            <div className="transform hover:-translate-y-1 transition-shadow duration-200">
+              <Card className="p-4 shadow-xl rounded-xl ring-1 ring-border card-3d motion-safe:animate-float">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs text-muted-foreground">Total Guardians</div>
+                    <div className="mt-1 text-2xl font-bold text-foreground">{formState.guardians.length}</div>
+                  </div>
+                  <div className="bg-muted rounded-lg p-2">
+                    <Users className="w-6 h-6 text-green-600" />
+                  </div>
+                </div>
+              </Card>
+            </div>
+            <div className="transform hover:-translate-y-1 transition-shadow duration-200">
+              <Card className="p-4 shadow-xl rounded-xl ring-1 ring-border card-3d motion-safe:animate-float">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs text-muted-foreground">Threshold</div>
+                    <div className="mt-1 text-2xl font-bold text-foreground">{formState.threshold}</div>
+                  </div>
+                  <div className="bg-muted rounded-lg p-2">
+                    <Lock className="w-6 h-6 text-primary" />
+                  </div>
+                </div>
+              </Card>
+            </div>
+            <div className="transform hover:-translate-y-1 transition-shadow duration-200">
+              <Card className="p-4 shadow-xl rounded-xl ring-1 ring-border card-3d motion-safe:animate-float">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs text-muted-foreground">Status</div>
+                    <div className="mt-1 text-2xl font-bold text-foreground">{formState.guardians.length > 0 ? 'Ready' : 'Setup needed'}</div>
+                  </div>
+                  <div className="bg-muted rounded-lg p-2">
+                    <CheckCircle2 className="w-6 h-6 text-green-600" />
+                  </div>
+                </div>
+              </Card>
             </div>
           </div>
         </div>
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* Connection Status */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Lock className="w-5 h-5 text-primary" aria-hidden="true" />
-                Wallet Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {connected && publicKey ? (
-                <>
-                  <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                    <CheckCircle2 className="w-5 h-5" aria-hidden="true" />
-                    <span className="text-sm font-medium">Connected</span>
+        {/* Main Columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-12 relative z-10">
+          {/* Guardian Management - left column (spans 2 on large) */}
+          <div className="lg:col-span-2">
+            <Card className="mb-6 rounded-xl shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Manage Guardians</span>
+                  <span className="text-sm text-muted-foreground">Add trusted addresses for account recovery</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Add Guardian */}
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
+                  <div className="flex-1 w-full">
+                    <label className="block text-sm font-semibold text-foreground mb-2">Add Guardian Address</label>
+                    <Input
+                      ref={guardianInputRef}
+                      type="text"
+                      placeholder="Enter a Solana address"
+                      value={formState.newGuardianAddress}
+                      onChange={(e: any) => {
+                        const v = e.target.value;
+                        setFormState((prev) => ({ ...prev, newGuardianAddress: v }));
+                        if (guardianError) setGuardianError(null);
+                      }}
+                      onKeyPress={(e: any) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddGuardian();
+                        }
+                      }}
+                      aria-invalid={!!guardianError}
+                      aria-describedby={guardianError ? 'guardian-error' : undefined}
+                      className="w-full"
+                    />
+                    {guardianError && (
+                      <p id="guardian-error" role="alert" aria-live="assertive" className="text-sm text-destructive mt-1">
+                        {guardianError}
+                      </p>
+                    )}
                   </div>
-                  <div className="p-3 bg-muted rounded-lg border border-border">
-                    <p className="text-xs text-muted-foreground mb-1">Address</p>
-                    <p className="font-mono text-xs text-foreground break-all">{publicKey.toBase58()}</p>
+
+                  <div className="w-full md:w-auto">
+                    <Button onClick={handleAddGuardian} className="gap-2 whitespace-nowrap bg-gradient-to-r from-primary to-secondary text-white shadow-md" disabled={!formState.newGuardianAddress.trim()}>
+                      <Plus className="w-4 h-4" />
+                      Add Guardian
+                    </Button>
                   </div>
-                </>
-              ) : (
-                <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500">
-                  <AlertCircle className="w-5 h-5" aria-hidden="true" />
-                  <span className="text-sm">Not connected</span>
                 </div>
-              )}
-              <WalletMultiButton className="!w-full" />
-            </CardContent>
-          </Card>
 
-          {/* Recovery Summary */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Users className="w-5 h-5 text-green-600 dark:text-green-400" aria-hidden="true" />
-                Recovery Configuration
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="p-4 bg-muted rounded-lg border border-border">
-                  <p className="text-xs text-muted-foreground mb-2 font-medium">Total Guardians</p>
-                  <p className="text-3xl font-bold text-primary">{formState.guardians.length}</p>
-                </div>
-                <div className="p-4 bg-muted rounded-lg border border-border">
-                  <p className="text-xs text-muted-foreground mb-2 font-medium">Threshold</p>
-                  <p className="text-3xl font-bold text-green-600 dark:text-green-400">{formState.threshold}</p>
-                </div>
-                <div className="p-4 bg-muted rounded-lg border border-border">
-                  <p className="text-xs text-muted-foreground mb-2 font-medium">Status</p>
-                  <p className="text-sm font-medium text-foreground">{formState.guardians.length > 0 ? "Ready" : "Setup needed"}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                {/* Guardian List */}
+                {formState.guardians.length > 0 ? (
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-foreground">Active Guardians ({formState.guardians.length})</h3>
+                    <div className="space-y-2 max-h-72 overflow-y-auto">
+                      {formState.guardians.map((guardian, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg border border-border hover:shadow-md transition-shadow">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary text-white flex items-center justify-center shrink-0">
+                              <span className="text-xs font-semibold">G{index + 1}</span>
+                            </div>
+                            <div className="min-w-0">
+                              <div className="text-sm text-foreground truncate">{guardian}</div>
+                              <div className="text-xs text-muted-foreground">Guardian address</div>
+                            </div>
+                          </div>
 
-        {/* Guardian Management */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Manage Guardians</CardTitle>
-            <CardDescription>Add trusted addresses for wallet recovery</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Add Guardian Input */}
-            <div>
-              <label className="block text-sm font-semibold text-foreground mb-3">Add Guardian Address</label>
-              <div className="flex gap-2">
-                <Input
-                  ref={guardianInputRef}
-                  type="text"
-                  placeholder="Enter a Solana address"
-                  value={formState.newGuardianAddress}
-                  onChange={(e: any) => {
-                    const v = e.target.value;
-                    setFormState((prev) => ({ ...prev, newGuardianAddress: v }));
-                    if (guardianError) setGuardianError(null);
-                  }}
-                  onKeyPress={(e: any) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddGuardian();
-                    }
-                  }}
-                  aria-invalid={!!guardianError}
-                  aria-describedby={guardianError ? "guardian-error" : undefined}
-                />
-                {guardianError && (
-                  <p id="guardian-error" role="alert" aria-live="assertive" className="text-sm text-destructive mt-1">
-                    {guardianError}
-                  </p>
-                )}
-                <Button onClick={handleAddGuardian} className="gap-2 whitespace-nowrap" disabled={!formState.newGuardianAddress.trim()}>
-                  <Plus className="w-4 h-4" />
-                  Add
-                </Button>
-              </div>
-            </div>
-
-            {/* Guardian List */}
-            {formState.guardians.length > 0 && (
-              <div>
-                <h3 className="text-sm font-semibold text-foreground mb-3">Active Guardians ({formState.guardians.length})</h3>
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {formState.guardians.map((guardian, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border transition-transform duration-150 ease-in-out hover:-translate-y-1 hover:shadow-md motion-reduce:transition-none">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <Badge variant="secondary" className="flex-shrink-0" aria-hidden="true">
-                          G{index + 1}
-                        </Badge>
-                        <code className="text-xs text-foreground truncate bg-card px-2 py-1 rounded">{guardian}</code>
-                      </div>
-                      <Button onClick={() => handleRemoveGuardian(index)} variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive ml-2" aria-label={`Remove guardian ${index + 1}`}>
-                        <Trash2 className="w-4 h-4" aria-hidden="true" />
-                      </Button>
+                          <div className="flex items-center gap-2">
+                            <Button onClick={() => handleRemoveGuardian(index)} variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive" aria-label={`Remove guardian ${index + 1}`}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Recovery Threshold */}
-            <div className="space-y-3 pt-6 border-t border-border">
-              <label className="block text-sm font-semibold text-foreground">Recovery Threshold (M-of-N)</label>
-              <p className="text-sm text-muted-foreground">How many guardians must approve to recover your wallet</p>
-              <div className="flex items-center gap-3">
-                <Input
-                  type="number"
-                  min="1"
-                  max={Math.max(formState.guardians.length, 1)}
-                  value={formState.threshold}
-                  onChange={(e: any) => {
-                    const val = parseInt(e.target.value) || 1;
-                    setFormState((prev) => ({
-                      ...prev,
-                      threshold: Math.min(val, prev.guardians.length || 1),
-                    }));
-                    if (val > formState.guardians.length) {
-                      setThresholdError("Threshold cannot exceed number of guardians");
-                    } else {
-                      setThresholdError(null);
-                    }
-                  }}
-                  className={`w-24 ${thresholdError ? "border-destructive" : ""}`}
-                  aria-invalid={!!thresholdError}
-                  aria-describedby={thresholdError ? "threshold-error" : undefined}
-                />
-                {thresholdError && (
-                  <p id="threshold-error" role="alert" aria-live="assertive" className="text-sm text-destructive mt-1">
-                    {thresholdError}
-                  </p>
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground">No guardians added yet. Add one to get started.</div>
                 )}
-                <span className="text-sm text-muted-foreground">
-                  of <span className="font-semibold text-foreground">{formState.guardians.length || "—"}</span> guardians
-                </span>
+
+                {/* Threshold */}
+                <div className="pt-2 border-t border-border">
+                  <label className="block text-sm font-semibold text-foreground mb-2">Recovery Threshold (M-of-N)</label>
+                  <p className="text-sm text-muted-foreground mb-3">How many guardians must approve to recover your wallet</p>
+                  <div className="flex items-center gap-3">
+                    <Input
+                      type="number"
+                      min="1"
+                      max={Math.max(formState.guardians.length, 1)}
+                      value={formState.threshold}
+                      onChange={(e: any) => {
+                        const val = parseInt(e.target.value) || 1;
+                        setFormState((prev) => ({
+                          ...prev,
+                          threshold: Math.min(val, prev.guardians.length || 1),
+                        }));
+                        if (val > formState.guardians.length) {
+                          setThresholdError('Threshold cannot exceed number of guardians');
+                        } else {
+                          setThresholdError(null);
+                        }
+                      }}
+                      className={`w-28 ${thresholdError ? 'border-destructive' : ''}`}
+                      aria-invalid={!!thresholdError}
+                      aria-describedby={thresholdError ? 'threshold-error' : undefined}
+                    />
+                    <div className="text-sm text-muted-foreground">
+                      of <span className="font-semibold text-foreground">{formState.guardians.length || '—'}</span> guardians
+                    </div>
+                  </div>
+                  {thresholdError && (
+                    <p id="threshold-error" role="alert" aria-live="assertive" className="text-sm text-destructive mt-2">
+                      {thresholdError}
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column: Actions & Help */}
+          <div className="lg:col-span-1 space-y-6">
+            <Card className="rounded-xl shadow-lg p-6">
+              <div className="flex flex-col gap-4">
+                <div>
+                  <div className="text-xs text-muted-foreground">Ready to proceed?</div>
+                  <div className="mt-1 text-lg font-semibold text-foreground">Initialize your recovery wallet</div>
+                </div>
+
+                <div>
+                  <Button onClick={handleInitializeWallet} disabled={loading || !connected || formState.guardians.length === 0} size="lg" className="w-full py-4 text-lg font-semibold bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg">
+                    {loading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Initializing...
+                      </>
+                    ) : (
+                      <>
+                        <Shield className="w-5 h-5" />
+                        Initialize Wallet
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                <div className="text-sm text-muted-foreground">Transactions will be built client-side and sent for signing by your connected wallet.</div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </Card>
 
-        {/* Action Section */}
-        <div className="space-y-4">
-          <Button onClick={handleInitializeWallet} disabled={loading || !connected || formState.guardians.length === 0} size="lg" className="w-full py-6 text-lg font-semibold gap-2">
-            {loading ? (
-              <>
-                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                Initializing...
-              </>
-            ) : (
-              <>
-                <Shield className="w-5 h-5" />
-                Initialize Wallet
-              </>
-            )}
-          </Button>
-
-          {/* Status messages are handled via toast notifications now */}
-        </div>
-
-        {/* Help Text */}
-        <div className="mt-12 p-6 bg-muted/50 rounded-lg border border-border">
-          <h3 className="text-sm font-semibold text-foreground mb-2">How GuardianGate Works</h3>
-          <ul className="text-sm text-muted-foreground space-y-2">
-            <li>✓ Add trusted guardians who can help you recover your wallet</li>
-            <li>✓ Set a threshold (e.g., 2-of-3) for recovery approval</li>
-            <li>✓ If you lose access, guardians can collectively help restore it</li>
-            <li>✓ All recovery operations are secured by the Solana blockchain</li>
-          </ul>
+            <Card className="rounded-xl p-6 border border-border bg-muted/50">
+              <h3 className="text-sm font-semibold text-foreground mb-3">How GuardianGate Works</h3>
+              <ul className="text-sm text-muted-foreground space-y-2">
+                <li>✓ Add trusted guardians who can help you recover your wallet</li>
+                <li>✓ Set a threshold (e.g., 2-of-3) for recovery approval</li>
+                <li>✓ If you lose access, guardians can collectively help restore it</li>
+                <li>✓ All recovery operations are secured by the Solana blockchain</li>
+              </ul>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
