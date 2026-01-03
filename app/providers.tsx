@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useEffect, useState } from "react";
+import { ToastProvider } from "@/components/ui/toast";
 import {
   ConnectionProvider,
   WalletProvider,
@@ -31,7 +32,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>{children}</WalletModalProvider>
+        <WalletModalProvider>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
   );
