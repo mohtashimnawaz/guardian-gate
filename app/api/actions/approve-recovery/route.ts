@@ -15,11 +15,23 @@
  * https://yourapp.com/api/actions/approve-recovery?walletConfigPDA=ABC123&guardianKey=DEF456
  */
 
-import {
-  ActionGetResponse,
-  ActionPostRequest,
-  ActionPostResponse,
-} from "@solana/actions";
+interface ActionGetResponse {
+  type: string;
+  title: string;
+  icon?: string;
+  description?: string;
+  label?: string;
+  error?: { message: string };
+}
+
+interface ActionPostRequest {
+  account: string;
+}
+
+interface ActionPostResponse {
+  transaction: string;
+  message?: string;
+}
 import {
   clusterApiUrl,
   Connection,
@@ -114,11 +126,12 @@ export async function POST(
 
     // Build transaction (simplified for this example)
     // In production, you would need to load the program IDL and build the actual instruction
-    const transaction = new Transaction({
-      recentBlockhash: blockhash,
-      feePayer: guardianPublicKey,
-      lastValidBlockHeight,
-    });
+    const transaction = new Transaction();
+    transaction.recentBlockhash = blockhash;
+    transaction.feePayer = guardianPublicKey;
+    // Assign lastValidBlockHeight if available (newer web3.js uses separate fields)
+    // Use a type cast if TypeScript complains about the property
+    (transaction as any).lastValidBlockHeight = lastValidBlockHeight;
 
     // Create a dummy instruction for this example
     // In production, construct the actual approve_recovery instruction

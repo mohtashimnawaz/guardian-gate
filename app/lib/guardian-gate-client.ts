@@ -36,11 +36,7 @@ export class GuardianGateClient {
       AnchorProvider.defaultOptions()
     );
 
-    this.program = new Program<GuardianGate>(
-      IDL as any,
-      PROGRAM_ID,
-      provider
-    );
+    this.program = new Program<GuardianGate>(IDL as any, PROGRAM_ID as any, provider as any);
   }
 
   /**
@@ -189,7 +185,7 @@ export class GuardianGateClient {
     const instructionData = instruction.data || Buffer.alloc(0);
 
     const tx = await this.program.methods
-      .executeProxyTransaction(Array.from(instructionData))
+      .executeProxyTransaction(Buffer.from(instructionData) as any)
       .accountsPartial({
         owner: owner.publicKey,
         walletConfig,

@@ -8,18 +8,38 @@
  * https://actions.dialect.to/?url=https://yourapp.com/api/actions/approve-recovery?walletConfigPDA=...&guardianKey=...
  */
 
-import {
-  ActionGetResponse,
-  ActionPostRequest,
-  ActionPostResponse,
-  SOLANA_PROTOCOL,
-} from "@solana/actions";
+interface ActionGetResponse {
+  type: string;
+  title: string;
+  icon?: string;
+  description?: string;
+  label?: string;
+  error?: { message: string };
+  links?: {
+    actions?: Array<{
+      href: string;
+      label?: string;
+      parameters?: any[];
+    }>;
+  };
+}
+
+interface ActionPostRequest {
+  account: string;
+  approverConfirm?: boolean;
+}
+
+interface ActionPostResponse {
+  transaction: string;
+  message?: string;
+}
 import {
   clusterApiUrl,
   Connection,
   PublicKey,
   Transaction,
   SystemProgram,
+  Keypair,
 } from "@solana/web3.js";
 import { Program, AnchorProvider, Wallet } from "@coral-xyz/anchor";
 import { GuardianGate } from "../../target/types/guardian_gate";
@@ -130,19 +150,10 @@ export async function POST(request: Request): Promise<Response> {
     const connection = new Connection(clusterApiUrl("mainnet-beta"));
 
     // Fetch the wallet config to verify it exists and guardian is registered
-    const provider = new AnchorProvider(
-      connection,
-      new Wallet(
-        new PublicKey("11111111111111111111111111111111") // Dummy wallet for reading
-      ),
-      {}
-    );
+    const dummyKeypair = Keypair.generate();
+    const provider = new AnchorProvider(connection, new Wallet(dummyKeypair), {});
 
-    const program = new Program<GuardianGate>(
-      IDL as any,
-      PROGRAM_ID,
-      provider
-    );
+    const program = new Program<GuardianGate>(IDL as any, PROGRAM_ID as any, provider as any);
 
     const walletConfig = await program.account.walletConfig.fetch(
       walletConfigAddress

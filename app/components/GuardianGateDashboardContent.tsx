@@ -126,7 +126,7 @@ export default function GuardianGateDashboardContent() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary rounded-lg">
-                <Shield className="w-8 h-8 text-primary-foreground" />
+                <Shield className="w-8 h-8 text-primary-foreground" aria-hidden="true" />
               </div>
               <div>
                 <h1 className="text-4xl md:text-5xl font-bold text-foreground">GuardianGate</h1>
@@ -140,12 +140,12 @@ export default function GuardianGateDashboardContent() {
         </div>
 
         {/* Main Grid */}
-        <div className="grid gap-6 lg:grid-cols-3 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Connection Status */}
           <Card className="lg:col-span-1">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Lock className="w-5 h-5 text-primary" />
+                <Lock className="w-5 h-5 text-primary" aria-hidden="true" />
                 Wallet Status
               </CardTitle>
             </CardHeader>
@@ -153,7 +153,7 @@ export default function GuardianGateDashboardContent() {
               {connected && publicKey ? (
                 <>
                   <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                    <CheckCircle2 className="w-5 h-5" />
+                    <CheckCircle2 className="w-5 h-5" aria-hidden="true" />
                     <span className="text-sm font-medium">Connected</span>
                   </div>
                   <div className="p-3 bg-muted rounded-lg border border-border">
@@ -163,7 +163,7 @@ export default function GuardianGateDashboardContent() {
                 </>
               ) : (
                 <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500">
-                  <AlertCircle className="w-5 h-5" />
+                  <AlertCircle className="w-5 h-5" aria-hidden="true" />
                   <span className="text-sm">Not connected</span>
                 </div>
               )}
@@ -175,7 +175,7 @@ export default function GuardianGateDashboardContent() {
           <Card className="lg:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Users className="w-5 h-5 text-green-600 dark:text-green-400" />
+                <Users className="w-5 h-5 text-green-600 dark:text-green-400" aria-hidden="true" />
                 Recovery Configuration
               </CardTitle>
             </CardHeader>
@@ -246,15 +246,15 @@ export default function GuardianGateDashboardContent() {
                 <h3 className="text-sm font-semibold text-foreground mb-3">Active Guardians ({formState.guardians.length})</h3>
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {formState.guardians.map((guardian, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border hover:border-primary/50 transition-colors">
+                    <div key={index} className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border transition-transform duration-150 ease-in-out hover:-translate-y-1 hover:shadow-md motion-reduce:transition-none">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <Badge variant="secondary" className="flex-shrink-0">
+                        <Badge variant="secondary" className="flex-shrink-0" aria-hidden="true">
                           G{index + 1}
                         </Badge>
                         <code className="text-xs text-foreground truncate bg-card px-2 py-1 rounded">{guardian}</code>
                       </div>
-                      <Button onClick={() => handleRemoveGuardian(index)} variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive ml-2">
-                        <Trash2 className="w-4 h-4" />
+                      <Button onClick={() => handleRemoveGuardian(index)} variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive ml-2" aria-label={`Remove guardian ${index + 1}`}>
+                        <Trash2 className="w-4 h-4" aria-hidden="true" />
                       </Button>
                     </div>
                   ))}
@@ -292,7 +292,7 @@ export default function GuardianGateDashboardContent() {
                   <p id="threshold-error" role="alert" aria-live="assertive" className="text-sm text-destructive mt-1">
                     {thresholdError}
                   </p>
-                )
+                )}
                 <span className="text-sm text-muted-foreground">
                   of <span className="font-semibold text-foreground">{formState.guardians.length || "—"}</span> guardians
                 </span>

@@ -42,7 +42,7 @@ async function exampleInitializeWallet() {
   ];
   const threshold = 2;
 
-  const tx = await client.initializeWallet(guardians, threshold);
+  const tx = await client.initializeWallet(guardians, threshold, owner);
   console.log(`✓ Wallet initialized: ${tx}\n`);
 
   // Verify wallet config
