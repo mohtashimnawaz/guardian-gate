@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Shield, Plus, Trash2, Lock, Users, CheckCircle2, AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
+import ThemeToggle from "@/components/ui/theme-toggle";
 
 export default function GuardianGateDashboardContent() {
   const { publicKey, connected } = useWallet();
@@ -98,13 +99,18 @@ export default function GuardianGateDashboardContent() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-12">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-primary rounded-lg">
-              <Shield className="w-8 h-8 text-primary-foreground" />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary rounded-lg">
+                <Shield className="w-8 h-8 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-4xl md:text-5xl font-bold text-foreground">GuardianGate</h1>
+                <p className="text-muted-foreground">Multi-signature wallet recovery system</p>
+              </div>
             </div>
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground">GuardianGate</h1>
-              <p className="text-muted-foreground">Multi-signature wallet recovery system</p>
+              <ThemeToggle />
             </div>
           </div>
         </div>
