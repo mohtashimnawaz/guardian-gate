@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { PublicKey } from "@solana/web3.js";
@@ -21,38 +21,62 @@ export default function GuardianGateDashboardContent() {
   });
   const [loading, setLoading] = useState(false);
   const toast = useToast();
+  const [guardianError, setGuardianError] = useState<string | null>(null);
+  const [thresholdError, setThresholdError] = useState<string | null>(null);
+  const guardianInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleAddGuardian = () => {
-    if (!formState.newGuardianAddress.trim()) {
-      toast.push({ type: "error", description: "Please enter a guardian address" });
+    const addr = formState.newGuardianAddress.trim();
+    if (!addr) {
+      setGuardianError("Please enter a guardian address");
+      guardianInputRef.current?.focus();
       return;
     }
 
     try {
-      new PublicKey(formState.newGuardianAddress);
-      if (formState.guardians.includes(formState.newGuardianAddress)) {
-        toast.push({ type: "error", description: "Guardian already added" });
+      new PublicKey(addr);
+      if (formState.guardians.includes(addr)) {
+        setGuardianError("Guardian already added");
+        guardianInputRef.current?.focus();
         return;
       }
+
       setFormState((prev) => ({
         ...prev,
-        guardians: [...prev.guardians, formState.newGuardianAddress],
+        guardians: [...prev.guardians, addr],
         newGuardianAddress: "",
       }));
+
+      setGuardianError(null);
+      setThresholdError(null);
       toast.push({ type: "success", description: "Guardian added" });
     } catch {
-      setMessage({ type: "error", text: "Invalid Solana address" });
+      setGuardianError("Invalid Solana address");
+      guardianInputRef.current?.focus();
     }
   };
 
   const handleRemoveGuardian = (index: number) => {
-    setFormState((prev) => ({
-      ...prev,
-      guardians: prev.guardians.filter((_, i) => i !== index),
-    }));
+    setFormState((prev) => {
+      const guards = prev.guardians.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        guardians: guards,
+        threshold: Math.min(prev.threshold, Math.max(guards.length, 1)),
+      };
+    });
+
+    setGuardianError(null);
+    setThresholdError(null);
   };
 
   const handleInitializeWallet = async () => {
+    if (guardianError || thresholdError) {
+      toast.push({ type: "error", description: "Please fix form errors before continuing" });
+      if (guardianError) guardianInputRef.current?.focus();
+      return;
+    }
+
     if (!publicKey) {
       toast.push({ type: "error", description: "Wallet not connected" });
       return;
@@ -186,19 +210,29 @@ export default function GuardianGateDashboardContent() {
               <label className="block text-sm font-semibold text-foreground mb-3">Add Guardian Address</label>
               <div className="flex gap-2">
                 <Input
+                  ref={guardianInputRef}
                   type="text"
                   placeholder="Enter a Solana address"
                   value={formState.newGuardianAddress}
-                  onChange={(e: any) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      newGuardianAddress: e.target.value,
-                    }))
-                  }
-                  onKeyPress={(e: any) => {
-                    if (e.key === "Enter") handleAddGuardian();
+                  onChange={(e: any) => {
+                    const v = e.target.value;
+                    setFormState((prev) => ({ ...prev, newGuardianAddress: v }));
+                    if (guardianError) setGuardianError(null);
                   }}
+                  onKeyPress={(e: any) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddGuardian();
+                    }
+                  }}
+                  aria-invalid={!!guardianError}
+                  aria-describedby={guardianError ? "guardian-error" : undefined}
                 />
+                {guardianError && (
+                  <p id="guardian-error" role="alert" aria-live="assertive" className="text-sm text-destructive mt-1">
+                    {guardianError}
+                  </p>
+                )}
                 <Button onClick={handleAddGuardian} className="gap-2 whitespace-nowrap" disabled={!formState.newGuardianAddress.trim()}>
                   <Plus className="w-4 h-4" />
                   Add
@@ -244,9 +278,21 @@ export default function GuardianGateDashboardContent() {
                       ...prev,
                       threshold: Math.min(val, prev.guardians.length || 1),
                     }));
+                    if (val > formState.guardians.length) {
+                      setThresholdError("Threshold cannot exceed number of guardians");
+                    } else {
+                      setThresholdError(null);
+                    }
                   }}
-                  className="w-24"
+                  className={`w-24 ${thresholdError ? "border-destructive" : ""}`}
+                  aria-invalid={!!thresholdError}
+                  aria-describedby={thresholdError ? "threshold-error" : undefined}
                 />
+                {thresholdError && (
+                  <p id="threshold-error" role="alert" aria-live="assertive" className="text-sm text-destructive mt-1">
+                    {thresholdError}
+                  </p>
+                )
                 <span className="text-sm text-muted-foreground">
                   of <span className="font-semibold text-foreground">{formState.guardians.length || "—"}</span> guardians
                 </span>
@@ -271,23 +317,7 @@ export default function GuardianGateDashboardContent() {
             )}
           </Button>
 
-          {/* Status Messages */}
-          {message && (
-            <div
-              className={`p-4 rounded-lg border flex gap-3 ${
-                message.type === "success"
-                  ? "bg-green-50 dark:bg-green-950/50 text-green-900 dark:text-green-300 border-green-200 dark:border-green-700/50"
-                  : "bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border-red-200 dark:border-red-700/50"
-              }`}
-            >
-              {message.type === "success" ? (
-                <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-              ) : (
-                <AlertCircle className="w-5 h-5 flex-shrink-0" />
-              )}
-              <p className="text-sm">{message.text}</p>
-            </div>
-          )}
+          {/* Status messages are handled via toast notifications now */}
         </div>
 
         {/* Help Text */}

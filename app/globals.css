@@ -51,17 +51,50 @@
   }
 }
 
+/* Fallback semantic utility classes mapped to our CSS variables.
+   These ensure classes like `bg-background` or `border-border` exist
+   even if Tailwind's generated utilities are not available during @apply.
+*/
+.bg-background { background-color: hsl(var(--background)); }
+.text-foreground { color: hsl(var(--foreground)); }
+.border-border { border-color: hsl(var(--border)); }
+.bg-muted { background-color: hsl(var(--muted)); }
+.text-muted-foreground { color: hsl(var(--muted-foreground)); }
+.bg-card { background-color: hsl(var(--card)); }
+.text-card-foreground { color: hsl(var(--card-foreground)); }
+
 @layer base {
   html { font-family: 'DM Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
   body {
-    @apply bg-background text-foreground text-base leading-relaxed;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-size: 1rem;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1 { @apply text-4xl md:text-5xl font-bold text-foreground; }
-  h2 { @apply text-2xl font-semibold text-foreground; }
-  h3 { @apply text-xl font-semibold text-foreground; }
-  p  { @apply text-base text-muted-foreground; }
+  h1 {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+  }
+  h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+  }
+  h3 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+  }
+  p {
+    font-size: 1rem;
+    color: hsl(var(--muted-foreground));
+  }
 }
 
